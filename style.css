@@ -1,0 +1,224 @@
+:root {
+  --primary-color: #00b894; /* 진담 브랜드 컬러 */
+  --bg-color: #f5f6fa;
+  --text-color: #2d3436;
+  --card-bg: #ffffff;
+  --wrong-color: #d63031;
+}
+
+body {
+  font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  background-color: var(--bg-color);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+  user-select: none;
+}
+
+#app {
+  width: 100%;
+  max-width: 420px;
+  background-color: var(--card-bg);
+  height: 100%;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.active {
+  display: flex;
+}
+
+/* 로비 */
+#lobby-screen {
+  overflow-y: auto;
+}
+.header {
+  margin-bottom: 20px;
+  padding-top: 20px;
+}
+.header h1 {
+  font-size: 1.5rem;
+  color: var(--text-color);
+  margin: 0;
+}
+.header p {
+  color: #636e72;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  padding-bottom: 20px;
+}
+
+.theme-card {
+  background: #fff;
+  border: 2px solid #dfe6e9;
+  border-radius: 15px;
+  padding: 20px 10px;
+  cursor: pointer;
+  transition:
+    transform 0.1s,
+    border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.theme-card:active {
+  transform: scale(0.95);
+}
+.theme-card.cleared {
+  border-color: var(--primary-color);
+  background-color: #e3fcf7;
+}
+.theme-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+.theme-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-color);
+}
+.stamp {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 1.2rem;
+  display: none;
+}
+.theme-card.cleared .stamp {
+  display: block;
+}
+
+/* 게임 */
+#game-screen {
+  justify-content: space-between;
+}
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #b2bec3;
+}
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #dfe6e9;
+  border-radius: 4px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background-color: var(--primary-color);
+  width: 0%;
+  transition: width 0.3s;
+}
+.question-box {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.word-chinese {
+  font-size: 3.5rem;
+  font-weight: bold;
+  color: var(--text-color);
+  margin-bottom: 10px;
+}
+.word-pinyin {
+  font-size: 1.5rem;
+  color: #636e72;
+  margin-bottom: 30px;
+}
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+.option-btn {
+  background-color: white;
+  border: 2px solid #b2bec3;
+  color: var(--text-color);
+  padding: 20px;
+  font-size: 1.2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.1s;
+  font-weight: bold;
+}
+.option-btn:active {
+  background-color: #f1f2f6;
+  transform: scale(0.98);
+}
+
+/* 결과 */
+#result-screen {
+  justify-content: center;
+  align-items: center;
+}
+.result-icon {
+  font-size: 5rem;
+  margin-bottom: 20px;
+}
+.result-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.result-msg {
+  font-size: 1.1rem;
+  color: #636e72;
+  margin-bottom: 40px;
+}
+.action-btn {
+  width: 100%;
+  padding: 15px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+.primary-btn {
+  background-color: var(--primary-color);
+  color: white;
+}
+.secondary-btn {
+  background-color: white;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+.brand-link {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #636e72;
+  text-decoration: underline;
+  cursor: pointer;
+}

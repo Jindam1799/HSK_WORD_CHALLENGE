@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>진담 HSK 스피드 도장깨기</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="lobby-screen" class="screen active">
+        <div class="header">
+          <h1>진담 HSK 도장깨기 👊</h1>
+          <p>하루에 한 테마씩, HSK 4급 완성!</p>
+        </div>
+        <div class="theme-grid" id="theme-list"></div>
+      </div>
+
+      <div id="game-screen" class="screen">
+        <div class="game-header">
+          <span id="close-game" style="cursor: pointer">✕</span>
+          <span id="score-display">0 / 10</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="question-box">
+          <div class="word-chinese" id="q-chinese"></div>
+          <div class="word-pinyin" id="q-pinyin"></div>
+        </div>
+
+        <div class="options-container">
+          <button class="option-btn" id="btn-1"></button>
+          <button class="option-btn" id="btn-2"></button>
+        </div>
+      </div>
+
+      <div id="result-screen" class="screen">
+        <div class="result-icon" id="res-icon">🎉</div>
+        <div class="result-title" id="res-title"></div>
+        <div class="result-msg" id="res-msg"></div>
+
+        <button class="action-btn primary-btn" id="next-btn">
+          로비로 돌아가기
+        </button>
+        <button class="action-btn secondary-btn" id="retry-btn">
+          다시 도전하기
+        </button>
+
+        <div
+          class="brand-link"
+          onclick="window.open('https://blog.naver.com/YOUR_ID', '_blank')"
+        >
+          👉 이 단어들, '진담 예문'으로 공부하려면?
+        </div>
+      </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
