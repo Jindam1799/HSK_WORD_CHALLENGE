@@ -15,7 +15,11 @@
   </head>
   <body>
     <div id="app">
-      <div id="lobby-screen" class="screen active">
+      <div id="opening-screen" class="screen active">
+        <img src="assets/opening.png" alt="Opening" class="opening-img" />
+      </div>
+
+      <div id="lobby-screen" class="screen">
         <div class="logo-area">
           <span class="brand-tag">HSK 1-4급 필수어휘</span>
           <h1>HSK 도장깨기<br />with 진담중국어</h1>
@@ -24,9 +28,12 @@
 
         <div class="stats-bar">
           <div class="guide-text-area">
-            <p class="guide-highlight">누르면서 반드시 입으로도 소리 내기!</p>
+            <p class="guide-highlight">
+              누르면서 반드시 입으로도 소리 내기! 🗣️
+            </p>
             <p class="guide-sub">1초 안에 '툭' 튀어 나오는 진담중국어</p>
           </div>
+
           <div class="stat-item">
             <span class="stat-label">나의 정복률</span>
             <span class="stat-value" id="total-cleared">0/30</span>
@@ -98,6 +105,19 @@
               <strong>틀린 단어 복습이 필요하다면?</strong>
               <span>'진담중국어' 블로그에서 예문 확인하기 (Click)</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="exit-modal" class="modal-overlay">
+        <div class="modal-content">
+          <h3>그만 하시겠어요? 😢</h3>
+          <p>지금 나가면 진행 상황이 저장되지 않아요.</p>
+          <div class="modal-buttons">
+            <button id="modal-cancel-btn" class="sub-btn">계속 할래요</button>
+            <button id="modal-confirm-btn" class="main-btn stop-btn">
+              나갈래요
+            </button>
           </div>
         </div>
       </div>
