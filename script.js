@@ -1,34 +1,54 @@
-// --- 상태 관리 ---
+// --- 설정 ---
+const QUESTION_COUNT = 20; // 20문제
+const TIME_LIMIT = 5; // 5초 제한
+
+// --- 상태 변수 ---
 let currentTheme = null;
 let currentQuestions = [];
 let currentIndex = 0;
-let score = 0;
+let wrongCount = 0;
+let timerInterval = null;
 
 // --- DOM 요소 ---
-const lobbyScreen = document.getElementById('lobby-screen');
-const gameScreen = document.getElementById('game-screen');
-const resultScreen = document.getElementById('result-screen');
 const themeList = document.getElementById('theme-list');
+const timerFill = document.getElementById('timer-fill');
+const flashCard = document.querySelector('.flash-card');
 
 // --- 초기화 ---
+init();
+
 function init() {
   renderLobby();
+
+  // ★ 카드 클릭 시 병음 보이기 이벤트 등록
+  if (flashCard) {
+    flashCard.onclick = () => {
+      const pinyinEl = document.getElementById('q-pinyin');
+      pinyinEl.classList.add('visible');
+    };
+  }
 }
 
-// 로비 그리기
 function renderLobby() {
   themeList.innerHTML = '';
   const clearedData = JSON.parse(
-    localStorage.getItem('jindam_cleared_themes') || '[]',
+    localStorage.getItem('jindam_cleared_hsk') || '[]',
   );
+
+  const total = themesData.length;
+  const cleared = clearedData.length;
+  document.getElementById('total-cleared').innerText = `${cleared}/${total}`;
+  document.getElementById('total-progress').style.width =
+    `${(cleared / total) * 100}%`;
 
   themesData.forEach((theme) => {
     const isCleared = clearedData.includes(theme.id);
     const card = document.createElement('div');
     card.className = `theme-card ${isCleared ? 'cleared' : ''}`;
     card.onclick = () => startGame(theme.id);
+
     card.innerHTML = `
-            <div class="stamp">👑</div>
+            ${isCleared ? '<div class="stamp">👑</div>' : ''}
             <div class="theme-icon">${theme.icon}</div>
             <div class="theme-title">${theme.title}</div>
         `;
@@ -36,88 +56,140 @@ function renderLobby() {
   });
 }
 
-function showScreen(screenName) {
+function showScreen(screenId) {
   document
     .querySelectorAll('.screen')
     .forEach((s) => s.classList.remove('active'));
-  document.getElementById(screenName).classList.add('active');
+  document.getElementById(screenId).classList.add('active');
 }
 
-// --- 게임 로직 ---
+// 게임 시작
 function startGame(themeId) {
   currentTheme = themesData.find((t) => t.id === themeId);
   if (!currentTheme) return;
 
-  // 문제 섞기 (배열 복사 후 정렬)
-  currentQuestions = [...currentTheme.words].sort(() => Math.random() - 0.5);
+  // 데이터 섞어서 20개만 가져오기
+  const fullList = [...currentTheme.words];
+  fullList.sort(() => Math.random() - 0.5);
+  currentQuestions = fullList.slice(0, QUESTION_COUNT);
+
   currentIndex = 0;
-  score = 0;
+  wrongCount = 0;
+
+  document.getElementById('current-stage-name').innerText = currentTheme.title;
 
   showScreen('game-screen');
   renderQuestion();
 }
 
 function renderQuestion() {
-  // 모든 문제를 다 풀었으면 종료
+  // 이전 타이머 정지
+  resetTimer();
+
+  // 종료 조건
   if (currentIndex >= currentQuestions.length) {
     endGame(true);
     return;
   }
 
   const q = currentQuestions[currentIndex];
-  document.getElementById('q-chinese').innerText = q.ch;
-  document.getElementById('q-pinyin').innerText = q.py;
 
-  // 진행바 업데이트
+  // UI 업데이트 (병음은 일단 숨김)
+  document.getElementById('q-chinese').innerText = q.ch;
+  const pinyinEl = document.getElementById('q-pinyin');
+  pinyinEl.innerText = q.py;
+  pinyinEl.classList.remove('visible'); // 다시 숨기기
+
   document.getElementById('score-display').innerText =
-    `${currentIndex} / ${currentQuestions.length}`;
+    `${currentIndex + 1}/${currentQuestions.length}`;
   const progress = (currentIndex / currentQuestions.length) * 100;
   document.getElementById('progress-fill').style.width = `${progress}%`;
 
-  // 오답 생성 (같은 테마 내 다른 단어)
+  // 오답 생성
   let wrongAnswer;
   do {
     const randomIdx = Math.floor(Math.random() * currentTheme.words.length);
     wrongAnswer = currentTheme.words[randomIdx].mean;
-  } while (wrongAnswer === q.mean);
+  } while (wrongAnswer === q.mean && currentTheme.words.length > 1);
 
-  // 버튼 세팅 (랜덤 위치)
+  // 버튼 배치 (좌우 랜덤)
   const isAnswerLeft = Math.random() < 0.5;
   const btn1 = document.getElementById('btn-1');
   const btn2 = document.getElementById('btn-2');
 
-  // 이벤트 리스너 초기화를 위해 노드 복제
   const newBtn1 = btn1.cloneNode(true);
   const newBtn2 = btn2.cloneNode(true);
+  newBtn1.className = 'option-btn';
+  newBtn2.className = 'option-btn';
+
   btn1.parentNode.replaceChild(newBtn1, btn1);
   btn2.parentNode.replaceChild(newBtn2, btn2);
 
   if (isAnswerLeft) {
     newBtn1.innerText = q.mean;
     newBtn2.innerText = wrongAnswer;
-    newBtn1.onclick = () => handleAnswer(true);
-    newBtn2.onclick = () => handleAnswer(false);
+    newBtn1.onclick = () => handleAnswer(true, newBtn1);
+    newBtn2.onclick = () => handleAnswer(false, newBtn2);
   } else {
     newBtn1.innerText = wrongAnswer;
     newBtn2.innerText = q.mean;
-    newBtn1.onclick = () => handleAnswer(false);
-    newBtn2.onclick = () => handleAnswer(true);
+    newBtn1.onclick = () => handleAnswer(false, newBtn1);
+    newBtn2.onclick = () => handleAnswer(true, newBtn2);
   }
+
+  // 문제 표시 후 타이머 시작
+  startTimer();
 }
 
-function handleAnswer(isCorrect) {
+// 타이머 함수
+function startTimer() {
+  timerFill.style.transition = 'none';
+  timerFill.style.width = '100%';
+
+  // 약간의 딜레이 후 애니메이션 시작
+  setTimeout(() => {
+    timerFill.style.transition = `width ${TIME_LIMIT}s linear`;
+    timerFill.style.width = '0%';
+  }, 50);
+
+  timerInterval = setTimeout(() => {
+    handleTimeOut();
+  }, TIME_LIMIT * 1000);
+}
+
+function resetTimer() {
+  clearTimeout(timerInterval);
+  timerFill.style.transition = 'none';
+  timerFill.style.width = '100%';
+}
+
+function handleTimeOut() {
+  const btn1 = document.getElementById('btn-1');
+  btn1.classList.add('wrong-anim'); // 시간 초과 시각 효과
+  setTimeout(() => {
+    endGame(false, '시간 초과! ⏱️');
+  }, 400);
+}
+
+function handleAnswer(isCorrect, btnElement) {
+  resetTimer();
+
   if (isCorrect) {
-    score++;
     currentIndex++;
     renderQuestion();
   } else {
-    // 틀리면 바로 게임 오버
-    endGame(false);
+    btnElement.classList.add('wrong-anim');
+    wrongCount++;
+    setTimeout(() => {
+      endGame(false);
+    }, 400);
   }
 }
 
-function endGame(isSuccess) {
+function endGame(isSuccess, reason = '') {
+  resetTimer();
   showScreen('result-screen');
+
   const icon = document.getElementById('res-icon');
   const title = document.getElementById('res-title');
   const msg = document.getElementById('res-msg');
@@ -125,23 +197,23 @@ function endGame(isSuccess) {
   if (isSuccess) {
     icon.innerText = '👑';
     title.innerText = '테마 정복 완료!';
-    msg.innerText = `'${currentTheme.title}' 테마를 완벽하게 외우셨네요!`;
+    title.style.color = 'var(--primary)';
+    msg.innerText = `${QUESTION_COUNT}문제를 모두 5초 안에 맞추셨어요!`;
 
-    // 로컬 스토리지 저장
     const clearedData = JSON.parse(
-      localStorage.getItem('jindam_cleared_themes') || '[]',
+      localStorage.getItem('jindam_cleared_hsk') || '[]',
     );
     if (!clearedData.includes(currentTheme.id)) {
       clearedData.push(currentTheme.id);
-      localStorage.setItem(
-        'jindam_cleared_themes',
-        JSON.stringify(clearedData),
-      );
+      localStorage.setItem('jindam_cleared_hsk', JSON.stringify(clearedData));
     }
   } else {
-    icon.innerText = '😭';
-    title.innerText = '아쉽게 실패...';
-    msg.innerText = `${currentIndex + 1}번째 단어에서 틀렸어요. 다시 도전해보세요!`;
+    icon.innerText = '😢';
+    title.innerText = reason ? reason : '아쉽게 실패...';
+    title.style.color = '#ff7675';
+    msg.innerText = reason
+      ? '5초 안에 답해야 해요! 다시 도전해보세요.'
+      : `${currentIndex + 1}번째 문제에서 틀렸어요.\n다시 도전해보세요!`;
   }
 
   document.getElementById('next-btn').onclick = () => {
@@ -155,10 +227,8 @@ function endGame(isSuccess) {
 }
 
 document.getElementById('close-game').onclick = () => {
+  resetTimer();
   if (confirm('게임을 종료하고 로비로 갈까요?')) {
     showScreen('lobby-screen');
   }
 };
-
-// 앱 시작
-init();
