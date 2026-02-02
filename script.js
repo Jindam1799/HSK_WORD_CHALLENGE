@@ -1,6 +1,6 @@
 // --- 설정 ---
-const QUESTION_COUNT = 20; // 20문제
-const TIME_LIMIT = 5; // 5초 제한
+const QUESTION_COUNT = 20;
+const TIME_LIMIT = 5;
 
 // --- 상태 변수 ---
 let currentTheme = null;
@@ -14,21 +14,51 @@ const themeList = document.getElementById('theme-list');
 const timerFill = document.getElementById('timer-fill');
 const flashCard = document.querySelector('.flash-card');
 
+// 팝업 요소
+const exitModal = document.getElementById('exit-modal');
+const modalCancelBtn = document.getElementById('modal-cancel-btn');
+const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+
 // --- 초기화 ---
 init();
 
 function init() {
   renderLobby();
 
-  // ★ 카드 클릭 시 병음 보이기 이벤트 등록
+  // ★★★ 1. 오프닝 화면 클릭 이벤트 (추가됨) ★★★
+  const openingScreen = document.getElementById('opening-screen');
+  if (openingScreen) {
+    openingScreen.onclick = () => {
+      showScreen('lobby-screen'); // 로비 화면으로 전환
+    };
+  }
+
+  // 카드 클릭 이벤트
   if (flashCard) {
     flashCard.onclick = () => {
       const pinyinEl = document.getElementById('q-pinyin');
       pinyinEl.classList.add('visible');
     };
   }
+
+  // 팝업 버튼 이벤트
+  document.getElementById('close-game').onclick = () => {
+    resetTimer();
+    exitModal.style.display = 'flex';
+  };
+
+  modalCancelBtn.onclick = () => {
+    exitModal.style.display = 'none';
+    startTimer();
+  };
+
+  modalConfirmBtn.onclick = () => {
+    exitModal.style.display = 'none';
+    showScreen('lobby-screen');
+  };
 }
 
+// ... (아래 코드는 기존과 동일하므로 그대로 두시면 됩니다) ...
 function renderLobby() {
   themeList.innerHTML = '';
   const clearedData = JSON.parse(
@@ -63,12 +93,10 @@ function showScreen(screenId) {
   document.getElementById(screenId).classList.add('active');
 }
 
-// 게임 시작
 function startGame(themeId) {
   currentTheme = themesData.find((t) => t.id === themeId);
   if (!currentTheme) return;
 
-  // 데이터 섞어서 20개만 가져오기
   const fullList = [...currentTheme.words];
   fullList.sort(() => Math.random() - 0.5);
   currentQuestions = fullList.slice(0, QUESTION_COUNT);
@@ -83,10 +111,8 @@ function startGame(themeId) {
 }
 
 function renderQuestion() {
-  // 이전 타이머 정지
   resetTimer();
 
-  // 종료 조건
   if (currentIndex >= currentQuestions.length) {
     endGame(true);
     return;
@@ -94,25 +120,22 @@ function renderQuestion() {
 
   const q = currentQuestions[currentIndex];
 
-  // UI 업데이트 (병음은 일단 숨김)
   document.getElementById('q-chinese').innerText = q.ch;
   const pinyinEl = document.getElementById('q-pinyin');
   pinyinEl.innerText = q.py;
-  pinyinEl.classList.remove('visible'); // 다시 숨기기
+  pinyinEl.classList.remove('visible');
 
   document.getElementById('score-display').innerText =
     `${currentIndex + 1}/${currentQuestions.length}`;
   const progress = (currentIndex / currentQuestions.length) * 100;
   document.getElementById('progress-fill').style.width = `${progress}%`;
 
-  // 오답 생성
   let wrongAnswer;
   do {
     const randomIdx = Math.floor(Math.random() * currentTheme.words.length);
     wrongAnswer = currentTheme.words[randomIdx].mean;
   } while (wrongAnswer === q.mean && currentTheme.words.length > 1);
 
-  // 버튼 배치 (좌우 랜덤)
   const isAnswerLeft = Math.random() < 0.5;
   const btn1 = document.getElementById('btn-1');
   const btn2 = document.getElementById('btn-2');
@@ -137,16 +160,12 @@ function renderQuestion() {
     newBtn2.onclick = () => handleAnswer(true, newBtn2);
   }
 
-  // 문제 표시 후 타이머 시작
   startTimer();
 }
 
-// 타이머 함수
 function startTimer() {
   timerFill.style.transition = 'none';
   timerFill.style.width = '100%';
-
-  // 약간의 딜레이 후 애니메이션 시작
   setTimeout(() => {
     timerFill.style.transition = `width ${TIME_LIMIT}s linear`;
     timerFill.style.width = '0%';
@@ -165,7 +184,7 @@ function resetTimer() {
 
 function handleTimeOut() {
   const btn1 = document.getElementById('btn-1');
-  btn1.classList.add('wrong-anim'); // 시간 초과 시각 효과
+  btn1.classList.add('wrong-anim');
   setTimeout(() => {
     endGame(false, '시간 초과! ⏱️');
   }, 400);
@@ -225,10 +244,3 @@ function endGame(isSuccess, reason = '') {
     startGame(currentTheme.id);
   };
 }
-
-document.getElementById('close-game').onclick = () => {
-  resetTimer();
-  if (confirm('게임을 종료하고 로비로 갈까요?')) {
-    showScreen('lobby-screen');
-  }
-};
