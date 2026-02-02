@@ -1,20 +1,19 @@
-// 여기에 전체 테마 데이터를 넣으세요.
 const themesData = [
   {
     id: 1,
-    title: '1) 인사표현',
+    title: '1) 인사 표현',
     icon: '👋',
     words: [
       { ch: '你', py: 'nǐ', mean: '너' },
-      { ch: '您', py: 'nín', mean: '당신, 귀하' },
+      { ch: '您', py: 'nín', mean: '당신, 귀하 (존칭)' },
       { ch: '好', py: 'hǎo', mean: '좋다, 안녕하다' },
       { ch: '再见', py: 'zàijiàn', mean: '잘가, 또 만나' },
       { ch: '谢谢您', py: 'xièxie nín', mean: '감사합니다' },
       { ch: '对不起', py: 'duìbuqǐ', mean: '미안합니다' },
-      { ch: '没关系', py: 'méi guānxi', mean: '괜찮아요' },
+      { ch: '没关系', py: 'méi guānxi', mean: '괜찮아요, 상관없어요' },
       { ch: '大家', py: 'dàjiā', mean: '여러분, 모두' },
       { ch: '我们', py: 'wǒmen', mean: '우리' },
-      { ch: '他', py: 'tā', mean: '그(남자)' },
+      { ch: '辛苦', py: 'xīnku', mean: '수고하다, 고생스럽다' },
     ],
   },
   {
@@ -31,8 +30,25 @@ const themesData = [
       { ch: '便宜', py: 'piányi', mean: '싸다' },
       { ch: '贵', py: 'guì', mean: '비싸다' },
       { ch: '漂亮', py: 'piàoliang', mean: '예쁘다' },
-      { ch: '件', py: 'jiàn', mean: '벌(옷 세는 단위)' },
+      { ch: '合适', py: 'héshì', mean: '적합하다, 어울리다' },
     ],
   },
-  // ... 계속 추가 ...
+  {
+    id: 3,
+    title: '3) 시간 말하기',
+    icon: '⏰',
+    words: [
+      { ch: '早上', py: 'zǎoshang', mean: '아침' },
+      { ch: '晚上', py: 'wǎnshang', mean: '저녁, 밤' },
+      { ch: '现在', py: 'xiànzài', mean: '지금, 현재' },
+      { ch: '今天', py: 'jīntiān', mean: '오늘' },
+      { ch: '明天', py: 'míngtiān', mean: '내일' },
+      { ch: '周末', py: 'zhōumò', mean: '주말' },
+      { ch: '最近', py: 'zuìjìn', mean: '요즘, 최근' },
+      { ch: '点', py: 'diǎn', mean: '시(시간)' },
+      { ch: '分', py: 'fēn', mean: '분' },
+      { ch: '以后', py: 'yǐhòu', mean: '나중에, 이후' },
+    ],
+  },
+  // ... 계속 추가 가능
 ];
