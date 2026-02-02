@@ -524,15 +524,26 @@ body {
   color: white;
   border: none;
 }
-
+/* ★★★ 오프닝 화면 스타일 (수정됨) ★★★ */
 #opening-screen {
-  padding: 0; /* 여백 제거 */
-  cursor: pointer; /* 클릭 가능하다는 커서 표시 */
+  padding: 0;
+  cursor: pointer;
+
+  /* 중요: 이미지가 다 안 찰 경우를 대비한 배경색 */
+  background-color: #047857; /* 오프닝 이미지 배경색과 같은 색으로 맞추면 더 자연스러워요! */
+
+  /* 이미지 중앙 정렬 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .opening-img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 비율 유지하며 화면 꽉 채우기 */
+
+  /* 핵심 변경: cover -> contain (비율 유지하며 전체 다 보여주기) */
+  object-fit: contain;
+
   display: block;
 }
