@@ -1,39 +1,38 @@
-// --- 설정 ---
 const QUESTION_COUNT = 20;
-const TIME_LIMIT = 5;
+const TIME_LIMIT = 10;
 
-// --- 상태 변수 ---
 let currentTheme = null;
 let currentQuestions = [];
 let currentIndex = 0;
 let wrongCount = 0;
 let timerInterval = null;
+let selectedThemeId = null; // [추가] 선택한 테마 보관용
 
-// --- DOM 요소 ---
 const themeList = document.getElementById('theme-list');
 const timerFill = document.getElementById('timer-fill');
 const flashCard = document.querySelector('.flash-card');
 
-// 팝업 요소
 const exitModal = document.getElementById('exit-modal');
 const modalCancelBtn = document.getElementById('modal-cancel-btn');
 const modalConfirmBtn = document.getElementById('modal-confirm-btn');
 
-// --- 초기화 ---
+// [추가] 안내 팝업 요소
+const startGuideModal = document.getElementById('start-guide-modal');
+const guideStartBtn = document.getElementById('guide-start-btn');
+const guideCloseBtn = document.getElementById('guide-close-btn');
+
 init();
 
 function init() {
   renderLobby();
 
-  // ★★★ 1. 오프닝 화면 클릭 이벤트 (추가됨) ★★★
   const openingScreen = document.getElementById('opening-screen');
   if (openingScreen) {
     openingScreen.onclick = () => {
-      showScreen('lobby-screen'); // 로비 화면으로 전환
+      showScreen('lobby-screen');
     };
   }
 
-  // 카드 클릭 이벤트
   if (flashCard) {
     flashCard.onclick = () => {
       const pinyinEl = document.getElementById('q-pinyin');
@@ -41,7 +40,15 @@ function init() {
     };
   }
 
-  // 팝업 버튼 이벤트
+  // [추가] 가이드 팝업 버튼 이벤트
+  guideStartBtn.onclick = () => {
+    startGuideModal.style.display = 'none';
+    startGame(selectedThemeId);
+  };
+  guideCloseBtn.onclick = () => {
+    startGuideModal.style.display = 'none';
+  };
+
   document.getElementById('close-game').onclick = () => {
     resetTimer();
     exitModal.style.display = 'flex';
@@ -58,13 +65,11 @@ function init() {
   };
 }
 
-// ... (아래 코드는 기존과 동일하므로 그대로 두시면 됩니다) ...
 function renderLobby() {
   themeList.innerHTML = '';
   const clearedData = JSON.parse(
     localStorage.getItem('jindam_cleared_hsk') || '[]',
   );
-
   const total = themesData.length;
   const cleared = clearedData.length;
   document.getElementById('total-cleared').innerText = `${cleared}/${total}`;
@@ -75,7 +80,12 @@ function renderLobby() {
     const isCleared = clearedData.includes(theme.id);
     const card = document.createElement('div');
     card.className = `theme-card ${isCleared ? 'cleared' : ''}`;
-    card.onclick = () => startGame(theme.id);
+
+    // [수정] 클릭 시 테마 ID 저장 후 팝업 띄우기
+    card.onclick = () => {
+      selectedThemeId = theme.id;
+      startGuideModal.style.display = 'flex';
+    };
 
     card.innerHTML = `
             ${isCleared ? '<div class="stamp">👑</div>' : ''}
@@ -105,21 +115,18 @@ function startGame(themeId) {
   wrongCount = 0;
 
   document.getElementById('current-stage-name').innerText = currentTheme.title;
-
   showScreen('game-screen');
   renderQuestion();
 }
 
 function renderQuestion() {
   resetTimer();
-
   if (currentIndex >= currentQuestions.length) {
     endGame(true);
     return;
   }
 
   const q = currentQuestions[currentIndex];
-
   document.getElementById('q-chinese').innerText = q.ch;
   const pinyinEl = document.getElementById('q-pinyin');
   pinyinEl.innerText = q.py;
@@ -170,7 +177,6 @@ function startTimer() {
     timerFill.style.transition = `width ${TIME_LIMIT}s linear`;
     timerFill.style.width = '0%';
   }, 50);
-
   timerInterval = setTimeout(() => {
     handleTimeOut();
   }, TIME_LIMIT * 1000);
@@ -192,7 +198,6 @@ function handleTimeOut() {
 
 function handleAnswer(isCorrect, btnElement) {
   resetTimer();
-
   if (isCorrect) {
     currentIndex++;
     renderQuestion();
@@ -208,7 +213,6 @@ function handleAnswer(isCorrect, btnElement) {
 function endGame(isSuccess, reason = '') {
   resetTimer();
   showScreen('result-screen');
-
   const icon = document.getElementById('res-icon');
   const title = document.getElementById('res-title');
   const msg = document.getElementById('res-msg');
@@ -217,8 +221,7 @@ function endGame(isSuccess, reason = '') {
     icon.innerText = '👑';
     title.innerText = '테마 정복 완료!';
     title.style.color = 'var(--primary)';
-    msg.innerText = `${QUESTION_COUNT}문제를 모두 5초 안에 맞추셨어요!`;
-
+    msg.innerText = `${QUESTION_COUNT}문제를 모두 ${TIME_LIMIT}초 안에 맞추셨어요!`;
     const clearedData = JSON.parse(
       localStorage.getItem('jindam_cleared_hsk') || '[]',
     );
@@ -231,7 +234,7 @@ function endGame(isSuccess, reason = '') {
     title.innerText = reason ? reason : '아쉽게 실패...';
     title.style.color = '#ff7675';
     msg.innerText = reason
-      ? '5초 안에 답해야 해요! 다시 도전해보세요.'
+      ? `${TIME_LIMIT}초 안에 답해야 해요! 다시 도전해보세요.`
       : `${currentIndex + 1}번째 문제에서 틀렸어요.\n다시 도전해보세요!`;
   }
 
@@ -239,7 +242,6 @@ function endGame(isSuccess, reason = '') {
     renderLobby();
     showScreen('lobby-screen');
   };
-
   document.getElementById('retry-btn').onclick = () => {
     startGame(currentTheme.id);
   };
