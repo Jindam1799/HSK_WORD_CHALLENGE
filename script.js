@@ -27,9 +27,25 @@ function init() {
   renderLobby();
 
   const openingScreen = document.getElementById('opening-screen');
+  const securityModal = document.getElementById('security-modal');
+  const securityConfirmBtn = document.getElementById('security-confirm-btn');
+
+  // 1. 오프닝 화면 클릭 시
   if (openingScreen) {
     openingScreen.onclick = () => {
-      showScreen('lobby-screen');
+      // 영상을 멈추고 보안 팝업을 띄움
+      const video = document.getElementById('opening-video');
+      if (video) video.pause();
+
+      securityModal.style.display = 'flex';
+    };
+  }
+
+  // 2. 보안 팝업 '확인했습니다' 클릭 시 로비로 이동
+  if (securityConfirmBtn) {
+    securityConfirmBtn.onclick = () => {
+      securityModal.style.display = 'none';
+      showScreen('lobby-screen'); // 이제 로비가 보입니다
     };
   }
 
