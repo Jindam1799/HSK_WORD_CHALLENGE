@@ -16,7 +16,7 @@ const themesData = [
         py: 'gǎnxiè nín duì wǒ de zhīchí',
         mean: '당신의 지원에 감사드립니다',
       },
-      { ch: '不客气', py: 'bú kèqi', mean: '천만해요, 별말씀을요' },
+      { ch: '不客气', py: 'bú kèqi', mean: '천만에요, 별말씀을요' },
       { ch: '不用谢', py: 'búyòng xiè', mean: '감사할 필요 없어요' },
       { ch: '对不起', py: 'duìbuqǐ', mean: '죄송합니다, 미안합니다' },
       { ch: '不好意思', py: 'bùhǎoyìsi', mean: '미안합니다 (가벼운 사과)' },
