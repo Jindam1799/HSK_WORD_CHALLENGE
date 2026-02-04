@@ -1,26 +1,30 @@
 const QUESTION_COUNT = 20;
 const TIME_LIMIT = 10;
 
+// --- 상태 변수 ---
 let currentTheme = null;
 let currentQuestions = [];
 let currentIndex = 0;
 let wrongCount = 0;
 let timerInterval = null;
-let selectedThemeId = null; // [추가] 선택한 테마 보관용
+let selectedThemeId = null; // 선택한 테마 보관용
 
+// --- DOM 요소 ---
 const themeList = document.getElementById('theme-list');
 const timerFill = document.getElementById('timer-fill');
 const flashCard = document.querySelector('.flash-card');
 
+// 팝업 요소
 const exitModal = document.getElementById('exit-modal');
 const modalCancelBtn = document.getElementById('modal-cancel-btn');
 const modalConfirmBtn = document.getElementById('modal-confirm-btn');
 
-// [추가] 안내 팝업 요소
+// 안내 팝업 요소
 const startGuideModal = document.getElementById('start-guide-modal');
 const guideStartBtn = document.getElementById('guide-start-btn');
 const guideCloseBtn = document.getElementById('guide-close-btn');
 
+// --- 초기화 ---
 init();
 
 function init() {
@@ -33,10 +37,8 @@ function init() {
   // 1. 오프닝 화면 클릭 시
   if (openingScreen) {
     openingScreen.onclick = () => {
-      // 영상을 멈추고 보안 팝업을 띄움
       const video = document.getElementById('opening-video');
       if (video) video.pause();
-
       securityModal.style.display = 'flex';
     };
   }
@@ -45,10 +47,11 @@ function init() {
   if (securityConfirmBtn) {
     securityConfirmBtn.onclick = () => {
       securityModal.style.display = 'none';
-      showScreen('lobby-screen'); // 이제 로비가 보입니다
+      showScreen('lobby-screen');
     };
   }
 
+  // 카드 클릭 이벤트 (병음 노출)
   if (flashCard) {
     flashCard.onclick = () => {
       const pinyinEl = document.getElementById('q-pinyin');
@@ -56,7 +59,7 @@ function init() {
     };
   }
 
-  // [추가] 가이드 팝업 버튼 이벤트
+  // 가이드 팝업 버튼 이벤트
   guideStartBtn.onclick = () => {
     startGuideModal.style.display = 'none';
     startGame(selectedThemeId);
@@ -65,6 +68,7 @@ function init() {
     startGuideModal.style.display = 'none';
   };
 
+  // 게임 종료 관련 이벤트
   document.getElementById('close-game').onclick = () => {
     resetTimer();
     exitModal.style.display = 'flex';
@@ -97,7 +101,6 @@ function renderLobby() {
     const card = document.createElement('div');
     card.className = `theme-card ${isCleared ? 'cleared' : ''}`;
 
-    // [수정] 클릭 시 테마 ID 저장 후 팝업 띄우기
     card.onclick = () => {
       selectedThemeId = theme.id;
       startGuideModal.style.display = 'flex';
@@ -153,11 +156,25 @@ function renderQuestion() {
   const progress = (currentIndex / currentQuestions.length) * 100;
   document.getElementById('progress-fill').style.width = `${progress}%`;
 
+  // --- [수정된 오답 생성 로직] ---
   let wrongAnswer;
+  let attempts = 0;
+  const maxAttempts = 30; // 유의어를 피하기 위한 최대 시도 횟수
+
   do {
     const randomIdx = Math.floor(Math.random() * currentTheme.words.length);
     wrongAnswer = currentTheme.words[randomIdx].mean;
-  } while (wrongAnswer === q.mean && currentTheme.words.length > 1);
+    attempts++;
+
+    // 조건: 정답과 오답이 완전히 같거나, 서로의 단어를 포함(유의어)하고 있다면 다시 뽑기
+  } while (
+    (wrongAnswer === q.mean ||
+      wrongAnswer.includes(q.mean) ||
+      q.mean.includes(wrongAnswer)) &&
+    attempts < maxAttempts &&
+    currentTheme.words.length > 1
+  );
+  // ------------------------------
 
   const isAnswerLeft = Math.random() < 0.5;
   const btn1 = document.getElementById('btn-1');
