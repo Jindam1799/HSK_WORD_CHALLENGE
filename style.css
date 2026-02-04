@@ -260,6 +260,19 @@ body {
   align-items: center;
   padding: 20px;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.watermark {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--primary);
+  opacity: 0.3; /* 구석에 있을 때는 조금 더 진해도 괜찮습니다 */
+  pointer-events: none;
+  z-index: 5;
 }
 .flash-card {
   text-align: center;
@@ -269,6 +282,9 @@ body {
   border-radius: 16px;
   transition: background-color 0.2s;
   user-select: none;
+  position: relative;
+  z-index: 10;
+  background: transparent !important;
 }
 .flash-card:active {
   background-color: #f3f4f6;
