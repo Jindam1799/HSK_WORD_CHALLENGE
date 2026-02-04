@@ -538,12 +538,19 @@ body {
   align-items: center;
 }
 
-.opening-img {
+/* 기존 .opening-img 스타일을 수정하거나 추가하세요 */
+.opening-vid {
   width: 100%;
   height: 100%;
-
-  /* 핵심 변경: cover -> contain (비율 유지하며 전체 다 보여주기) */
+  /* 비율을 유지하며 꽉 채우려면 cover, 영상 전체가 다 보이게 하려면 contain */
   object-fit: contain;
-
   display: block;
+}
+
+#opening-screen {
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
