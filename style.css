@@ -16,6 +16,7 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* 터치 시 파란 박스 제거 */
 }
 
 body {
@@ -25,7 +26,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* 모바일 브라우저 툴바 대응 */
   height: 100vh;
+  height: 100dvh;
   color: var(--text-main);
   overflow: hidden;
 }
@@ -33,7 +36,10 @@ body {
 #app {
   width: 100%;
   max-width: 440px;
+  /* 핵심 수정: 브라우저 UI를 제외한 실제 가시 영역에 맞춤 */
   height: 100%;
+  height: 100dvh;
+
   background-color: var(--bg-color);
   position: relative;
   overflow: hidden;
@@ -117,7 +123,6 @@ body {
   overflow: hidden;
 }
 
-/* 그라데이션 수정: 새로운 초록색에 맞춤 */
 .stat-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--primary), #10b981);
@@ -151,7 +156,6 @@ body {
   transform: scale(0.96);
 }
 
-/* 클리어 시 배경색: 연한 에메랄드 빛으로 변경 */
 .theme-card.cleared {
   border-color: var(--primary);
   background: #ecfdf5;
@@ -175,7 +179,6 @@ body {
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
 }
 
-/* 가이드 문구 */
 .guide-text-area {
   text-align: center;
   margin-bottom: 15px;
@@ -200,6 +203,7 @@ body {
   background: #fff;
   padding: 0;
   justify-content: space-between;
+  overflow: hidden; /* 게임 중 스크롤 방지 */
 }
 .timer-container {
   width: 100%;
@@ -217,7 +221,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
+  padding: 10px 20px; /* 패딩 소폭 축소 */
 }
 .icon-btn {
   background: none;
@@ -252,16 +256,17 @@ body {
   transition: width 0.3s;
 }
 
-/* 카드 영역 */
+/* 카드 영역 수정: flex-grow를 사용하여 공간 유연하게 확보 */
 .card-area {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 10px 20px;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  min-height: 0; /* flex 박스 찌그러짐 방지 */
 }
 .watermark {
   position: absolute;
@@ -270,7 +275,7 @@ body {
   font-size: 1rem;
   font-weight: bold;
   color: var(--primary);
-  opacity: 0.3; /* 구석에 있을 때는 조금 더 진해도 괜찮습니다 */
+  opacity: 0.3;
   pointer-events: none;
   z-index: 5;
 }
@@ -285,9 +290,6 @@ body {
   position: relative;
   z-index: 10;
   background: transparent !important;
-}
-.flash-card:active {
-  background-color: #f3f4f6;
 }
 @keyframes popIn {
   from {
@@ -304,8 +306,7 @@ body {
   font-size: 4rem;
   font-weight: 800;
   color: var(--text-main);
-  margin-bottom: 10px;
-  letter-spacing: 0px;
+  margin-bottom: 5px;
   font-family: 'Noto Sans SC', sans-serif;
   line-height: 1.1;
 }
@@ -315,30 +316,29 @@ body {
   color: #6b7280;
   font-weight: 500;
   opacity: 0;
-  transform: translateY(-10px);
-  transition: none;
+  height: 1.8rem; /* 공간 고정으로 덜덜거림 방지 */
 }
 .word-py.visible {
   opacity: 1;
-  transform: translateY(0);
   transition: all 0.3s ease;
 }
 
 .interaction-area {
-  padding: 0 15px 30px;
+  padding: 0 15px 20px; /* 하단 패딩 축소하여 버튼 올림 */
   text-align: center;
 }
 .hint-text {
   color: #6b7280;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
 }
 
+/* 옵션 버튼 영역 수정: 화면 높이에 따라 유동적으로 조절 */
 .options-grid {
   display: flex;
   flex-direction: row;
   gap: 12px;
-  height: 140px;
+  height: clamp(100px, 18vh, 130px);
 }
 .option-btn {
   flex: 1;
@@ -346,7 +346,7 @@ body {
   border: 2px solid #e5e7eb;
   color: var(--text-main);
   padding: 10px;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   border-radius: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -356,12 +356,11 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  line-height: 1.3;
+  line-height: 1.2;
 }
 .option-btn:active {
   transform: translateY(4px);
   box-shadow: none;
-  background-color: #f3f4f6;
 }
 .option-btn.wrong-anim {
   animation: shake 0.4s;
@@ -385,17 +384,18 @@ body {
 
 /* 3. 결과 화면 */
 #result-screen {
-  padding: 40px 30px;
+  padding: 30px 20px;
   justify-content: space-between;
   background: #fff;
+  overflow-y: auto;
 }
 .result-content {
   text-align: center;
-  margin-top: 40px;
+  margin-top: 20px;
 }
 .result-icon-box {
-  font-size: 5rem;
-  margin-bottom: 20px;
+  font-size: 4rem;
+  margin-bottom: 15px;
 }
 .bounce {
   animation: bounce 2s infinite;
@@ -417,12 +417,12 @@ body {
   }
 }
 #res-title {
-  font-size: 2rem;
+  font-size: 1.8rem;
   margin: 0 0 10px;
   color: var(--text-main);
 }
 #res-msg {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--text-sub);
   margin: 0;
   line-height: 1.5;
@@ -431,15 +431,15 @@ body {
 .bottom-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 .main-btn {
   background: var(--primary);
   color: white;
   border: none;
-  padding: 18px;
+  padding: 16px;
   border-radius: 16px;
   font-size: 1.1rem;
   font-weight: 700;
@@ -450,35 +450,34 @@ body {
   background: #fff;
   color: var(--text-sub);
   border: 2px solid #e5e7eb;
-  padding: 16px;
+  padding: 14px;
   border-radius: 16px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
 }
 .promo-box {
-  margin-top: 15px;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 15px;
+  padding: 12px;
   display: flex;
   align-items: center;
   text-align: left;
   cursor: pointer;
 }
 .promo-icon {
-  font-size: 2rem;
-  margin-right: 15px;
+  font-size: 1.5rem;
+  margin-right: 12px;
 }
 .promo-text strong {
   display: block;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: var(--text-main);
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 .promo-text span {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--primary);
   font-weight: 600;
 }
@@ -495,17 +494,15 @@ body {
   display: none;
   justify-content: center;
   align-items: center;
-  animation: fadeIn 0.2s;
 }
 .modal-content {
   background: #fff;
   width: 85%;
   max-width: 320px;
-  padding: 30px 20px;
+  padding: 25px 20px;
   border-radius: 20px;
   text-align: center;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  animation: popIn 0.2s;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -513,12 +510,12 @@ body {
 .modal-content h3 {
   margin: 0 0 10px 0;
   color: var(--text-main);
-  font-size: 1.3rem;
+  font-size: 1.2rem;
 }
 .modal-content p {
   color: var(--text-sub);
-  font-size: 0.95rem;
-  margin-bottom: 25px;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
   line-height: 1.4;
   word-break: keep-all;
 }
@@ -532,41 +529,26 @@ body {
   flex: 1;
   padding: 12px 0;
   font-size: 1rem;
-  margin: 0;
 }
 .stop-btn {
   background-color: var(--error);
-  box-shadow: none;
   color: white;
   border: none;
 }
-/* ★★★ 오프닝 화면 스타일 (수정됨) ★★★ */
+
+/* 5. 오프닝 화면 */
 #opening-screen {
   padding: 0;
   cursor: pointer;
-
-  /* 중요: 이미지가 다 안 찰 경우를 대비한 배경색 */
-  background-color: #047857; /* 오프닝 이미지 배경색과 같은 색으로 맞추면 더 자연스러워요! */
-
-  /* 이미지 중앙 정렬 */
+  background-color: #047857;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* 기존 .opening-img 스타일을 수정하거나 추가하세요 */
 .opening-vid {
   width: 100%;
   height: 100%;
-  /* 비율을 유지하며 꽉 채우려면 cover, 영상 전체가 다 보이게 하려면 contain */
   object-fit: contain;
   display: block;
-}
-
-#opening-screen {
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
