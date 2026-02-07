@@ -26,7 +26,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* 모바일 브라우저 툴바 대응 */
+  /* ★ 수정: 모바일 브라우저 툴바 대응 (dvh 우선 적용) */
   height: 100vh;
   height: 100dvh;
   color: var(--text-main);
@@ -36,7 +36,7 @@ body {
 #app {
   width: 100%;
   max-width: 440px;
-  /* 핵심 수정: 브라우저 UI를 제외한 실제 가시 영역에 맞춤 */
+  /* ★ 수정: 실제 가시 영역에 맞춤 */
   height: 100%;
   height: 100dvh;
 
@@ -59,8 +59,14 @@ body {
   top: 0;
   left: 0;
   background: var(--bg-color);
+}
+
+/* 로비와 결과화면만 스크롤 허용, 게임화면은 고정 */
+#lobby-screen,
+#result-screen {
   overflow-y: auto;
 }
+
 .active {
   display: flex;
   animation: fadeIn 0.3s ease-in-out;
@@ -203,7 +209,7 @@ body {
   background: #fff;
   padding: 0;
   justify-content: space-between;
-  overflow: hidden; /* 게임 중 스크롤 방지 */
+  overflow: hidden; /* ★ 수정: 게임 중 스크롤 방지 */
 }
 .timer-container {
   width: 100%;
@@ -221,7 +227,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px; /* 패딩 소폭 축소 */
+  padding: 10px 20px; /* ★ 수정: 상단 여백 소폭 줄임 */
 }
 .icon-btn {
   background: none;
@@ -256,9 +262,9 @@ body {
   transition: width 0.3s;
 }
 
-/* 카드 영역 수정: flex-grow를 사용하여 공간 유연하게 확보 */
+/* 카드 영역 수정: flex-grow를 사용하여 남는 공간을 모두 차지하도록 함 */
 .card-area {
-  flex: 1;
+  flex: 1; /* ★ 수정: 버튼 위치 고정을 위해 매우 중요 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -266,7 +272,7 @@ body {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  min-height: 0; /* flex 박스 찌그러짐 방지 */
+  min-height: 0; /* flex 찌그러짐 방지 */
 }
 .watermark {
   position: absolute;
@@ -283,7 +289,7 @@ body {
   text-align: center;
   animation: popIn 0.3s;
   cursor: pointer;
-  padding: 20px;
+  padding: 15px; /* ★ 수정 */
   border-radius: 16px;
   transition: background-color 0.2s;
   user-select: none;
@@ -303,10 +309,12 @@ body {
 }
 
 .word-ch {
-  font-size: 4rem;
+  /* ★ 수정: 화면 높이에 따라 폰트 크기 자동 조절 */
+  font-size: clamp(3.5rem, 12vh, 4.5rem);
   font-weight: 800;
   color: var(--text-main);
   margin-bottom: 5px;
+  letter-spacing: 0px;
   font-family: 'Noto Sans SC', sans-serif;
   line-height: 1.1;
 }
@@ -316,7 +324,7 @@ body {
   color: #6b7280;
   font-weight: 500;
   opacity: 0;
-  height: 1.8rem; /* 공간 고정으로 덜덜거림 방지 */
+  height: 1.8rem; /* ★ 수정: 공간 미리 확보하여 텍스트 튕김 방지 */
 }
 .word-py.visible {
   opacity: 1;
@@ -324,8 +332,9 @@ body {
 }
 
 .interaction-area {
-  padding: 0 15px 20px; /* 하단 패딩 축소하여 버튼 올림 */
+  padding: 0 15px 20px; /* ★ 수정: 하단 여백 조절 */
   text-align: center;
+  flex-shrink: 0; /* 버튼 영역이 눌리지 않게 고정 */
 }
 .hint-text {
   color: #6b7280;
@@ -333,18 +342,18 @@ body {
   margin-bottom: 8px;
 }
 
-/* 옵션 버튼 영역 수정: 화면 높이에 따라 유동적으로 조절 */
 .options-grid {
   display: flex;
   flex-direction: row;
   gap: 12px;
-  height: clamp(100px, 18vh, 130px);
+  /* ★ 수정: 버튼 높이를 화면의 15% 내외로 유동적 조절 */
+  height: clamp(100px, 16vh, 130px);
 }
 .option-btn {
   flex: 1;
-  background: #fff;
-  border: 2px solid #e5e7eb;
-  color: var(--text-main);
+  background: #fff !important;
+  border: 2px solid #e5e7eb !important;
+  color: var(--text-main) !important;
   padding: 10px;
   font-size: 1.1rem;
   border-radius: 16px;
@@ -363,23 +372,11 @@ body {
   box-shadow: none;
 }
 .option-btn.wrong-anim {
-  animation: shake 0.4s;
-  background: var(--error);
-  color: white;
-  border-color: var(--error);
-  box-shadow: 0 4px 0 #b91c1c;
-}
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-5px);
-  }
-  75% {
-    transform: translateX(5px);
-  }
+  animation: shake 0.4s !important;
+  background: var(--error) !important;
+  color: white !important;
+  border-color: var(--error) !important;
+  box-shadow: 0 4px 0 #b91c1c !important;
 }
 
 /* 3. 결과 화면 */
@@ -387,7 +384,6 @@ body {
   padding: 30px 20px;
   justify-content: space-between;
   background: #fff;
-  overflow-y: auto;
 }
 .result-content {
   text-align: center;
@@ -396,25 +392,6 @@ body {
 .result-icon-box {
   font-size: 4rem;
   margin-bottom: 15px;
-}
-.bounce {
-  animation: bounce 2s infinite;
-  display: inline-block;
-}
-@keyframes bounce {
-  0%,
-  20%,
-  50%,
-  80%,
-  100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-20px);
-  }
-  60% {
-    transform: translateY(-10px);
-  }
 }
 #res-title {
   font-size: 1.8rem;
@@ -436,8 +413,8 @@ body {
   margin-bottom: 10px;
 }
 .main-btn {
-  background: var(--primary);
-  color: white;
+  background: var(--primary) !important;
+  color: white !important;
   border: none;
   padding: 16px;
   border-radius: 16px;
@@ -447,39 +424,14 @@ body {
   box-shadow: 0 4px 10px -3px rgba(4, 120, 87, 0.5);
 }
 .sub-btn {
-  background: #fff;
-  color: var(--text-sub);
-  border: 2px solid #e5e7eb;
+  background: #fff !important;
+  color: var(--text-sub) !important;
+  border: 2px solid #e5e7eb !important;
   padding: 14px;
   border-radius: 16px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-}
-.promo-box {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  text-align: left;
-  cursor: pointer;
-}
-.promo-icon {
-  font-size: 1.5rem;
-  margin-right: 12px;
-}
-.promo-text strong {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--text-main);
-  margin-bottom: 2px;
-}
-.promo-text span {
-  font-size: 0.75rem;
-  color: var(--primary);
-  font-weight: 600;
 }
 
 /* 4. 팝업 모달 스타일 */
@@ -507,34 +459,6 @@ body {
   flex-direction: column;
   align-items: center;
 }
-.modal-content h3 {
-  margin: 0 0 10px 0;
-  color: var(--text-main);
-  font-size: 1.2rem;
-}
-.modal-content p {
-  color: var(--text-sub);
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-  line-height: 1.4;
-  word-break: keep-all;
-}
-.modal-buttons {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-  justify-content: center;
-}
-.modal-buttons button {
-  flex: 1;
-  padding: 12px 0;
-  font-size: 1rem;
-}
-.stop-btn {
-  background-color: var(--error);
-  color: white;
-  border: none;
-}
 
 /* 5. 오프닝 화면 */
 #opening-screen {
@@ -545,7 +469,6 @@ body {
   justify-content: center;
   align-items: center;
 }
-
 .opening-vid {
   width: 100%;
   height: 100%;
