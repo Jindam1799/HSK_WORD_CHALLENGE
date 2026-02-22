@@ -9,6 +9,10 @@ let wrongCount = 0;
 let timerInterval = null;
 let selectedThemeId = null;
 
+// --- 오디오 객체 생성 ---
+const timerAudio = new Audio('assets/timer.mp3');
+timerAudio.loop = false;
+
 // --- DOM 요소 ---
 const themeList = document.getElementById('theme-list');
 const timerFill = document.getElementById('timer-fill');
@@ -83,6 +87,15 @@ function init() {
     exitModal.style.display = 'none';
     showScreen('lobby-screen');
   };
+
+  const lockedModal = document.getElementById('locked-modal');
+  const lockedCloseBtn = document.getElementById('locked-close-btn');
+
+  if (lockedCloseBtn) {
+    lockedCloseBtn.onclick = () => {
+      lockedModal.style.display = 'none';
+    };
+  }
 }
 
 function renderLobby() {
@@ -92,20 +105,35 @@ function renderLobby() {
   );
   const total = themesData.length;
   const cleared = clearedData.length;
+
   document.getElementById('total-cleared').innerText = `${cleared}/${total}`;
   document.getElementById('total-progress').style.width =
     `${(cleared / total) * 100}%`;
 
   themesData.forEach((theme) => {
     const isCleared = clearedData.includes(theme.id);
+    const isLocked = false; // 10번 초과 잠금 로직 유지
+
     const card = document.createElement('div');
-    card.className = `theme-card ${isCleared ? 'cleared' : ''}`;
+    card.className = `theme-card ${isCleared ? 'cleared' : ''} ${isLocked ? 'locked' : ''}`;
+
     card.onclick = () => {
-      selectedThemeId = theme.id;
-      startGuideModal.style.display = 'flex';
+      if (isLocked) {
+        document.getElementById('locked-modal').style.display = 'flex';
+      } else {
+        selectedThemeId = theme.id;
+        startGuideModal.style.display = 'flex';
+      }
     };
+
     card.innerHTML = `
-      ${isCleared ? '<div class="stamp">👑</div>' : ''}
+      ${
+        isLocked
+          ? '<div class="lock-badge">🔒</div>'
+          : isCleared
+            ? '<div class="stamp">👑</div>'
+            : ''
+      }
       <div class="theme-icon">${theme.icon}</div>
       <div class="theme-title">${theme.title}</div>
     `;
@@ -113,22 +141,16 @@ function renderLobby() {
   });
 }
 
-// 잔상 해결을 위해 개선된 화면 전환 함수
 function showScreen(screenId) {
   const screens = document.querySelectorAll('.screen');
   const targetScreen = document.getElementById(screenId);
 
-  // 1. 타겟 화면을 먼저 위로 올리고 활성화
   targetScreen.classList.add('active');
-
-  // 2. 다른 모든 화면에서 active 제거 (약간의 딜레이로 빈틈 방지)
   screens.forEach((s) => {
     if (s.id !== screenId) {
       s.classList.remove('active');
     }
   });
-
-  // 3. 페이지 전환 시 스크롤 위치 초기화
   targetScreen.scrollTop = 0;
 }
 
@@ -166,28 +188,21 @@ function renderQuestion() {
   let wrongAnswer;
   let attempts = 0;
 
-  // [수정됨] 중복 검사 로직 강화 (유료 버전용)
   do {
     const randomIdx = Math.floor(Math.random() * currentTheme.words.length);
     wrongAnswer = currentTheme.words[randomIdx].mean;
     attempts++;
 
-    // 1. 정답과 오답을 쉼표(,) 기준으로 쪼개서 핵심 단어 배열로 만듭니다.
-    // 예: "약간, 조금" -> ["약간", "조금"]
     const answerKeywords = q.mean.split(',').map((s) => s.trim());
-
-    // 2. 겹치는 단어가 하나라도 있는지 확인합니다.
     const isOverlapping = answerKeywords.some((keyword) =>
       wrongAnswer.includes(keyword),
     );
 
-    // 겹치거나 완전히 같으면 다시 뽑습니다 (isOverlapping이 true면 반복)
     if (isOverlapping || wrongAnswer === q.mean) {
-      wrongAnswer = null; // 조건 불만족 시 초기화하여 루프 유지
+      wrongAnswer = null;
     }
   } while (!wrongAnswer && attempts < 30 && currentTheme.words.length > 1);
 
-  // 만약 30번 시도해도 적절한 오답을 못 찾으면(단어가 너무 비슷하면), 그냥 아무거나 씁니다.
   if (!wrongAnswer) {
     const randomIdx = Math.floor(Math.random() * currentTheme.words.length);
     wrongAnswer = currentTheme.words[randomIdx].mean;
@@ -218,13 +233,21 @@ function renderQuestion() {
   }
   startTimer();
 }
+
 function startTimer() {
+  // 시각적 초기화
   timerFill.style.transition = 'none';
   timerFill.style.width = '100%';
+
+  // 오디오 재생 (처음부터)
+  timerAudio.currentTime = 0;
+  timerAudio.play().catch((e) => console.warn('오디오 재생 차단됨:', e));
+
   setTimeout(() => {
     timerFill.style.transition = `width ${TIME_LIMIT}s linear`;
     timerFill.style.width = '0%';
   }, 50);
+
   timerInterval = setTimeout(
     () => endGame(false, '시간 초과! ⏱️'),
     TIME_LIMIT * 1000,
@@ -233,6 +256,11 @@ function startTimer() {
 
 function resetTimer() {
   clearTimeout(timerInterval);
+
+  // 오디오 정지 및 리셋
+  timerAudio.pause();
+  timerAudio.currentTime = 0;
+
   timerFill.style.transition = 'none';
   timerFill.style.width = '100%';
 }
@@ -249,7 +277,7 @@ function handleAnswer(isCorrect, btnElement) {
 }
 
 function endGame(isSuccess, reason = '') {
-  resetTimer();
+  resetTimer(); // 오디오 정지 포함
   showScreen('result-screen');
   const icon = document.getElementById('res-icon');
   const title = document.getElementById('res-title');
